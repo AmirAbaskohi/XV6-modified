@@ -23,7 +23,10 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
-int reverse_number(int);
+int trace_syscalls(int);
+int get_children(int);
+int get_grandchildren(int);
+int getpid_parent(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

@@ -31,9 +31,11 @@ struct context {
   uint ebp;
   uint eip;
 };
-
+void show_syscalls(void);
+void set_state(int _state);
+void show_children(int parent_pid);
+void show_grandchildren(int parent_pid);
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
-
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -48,7 +50,8 @@ struct proc {
   int killed;                  // If non-zero, have been killed
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
-  char name[16];               // Process name (debugging)
+  char name[16]; 
+  int syscalls[23] ;
 };
 
 // Process memory is laid out contiguously, low addresses first:

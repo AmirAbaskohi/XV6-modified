@@ -41,11 +41,10 @@ void save(int result)
 
 int main(int argc, char *argv[])
 {
-    printf(1,"rn%d\n",reverse_number(123));
-    // int res;
-    // int number_of_arguments = argc > 9 ? 9 : argc;
+    int res;
+    int number_of_arguments = argc > 9 ? 9 : argc;
 
-    // res = lcm(argv, number_of_arguments);
-    // save(res);
+    res = lcm(argv, number_of_arguments);
+    save(res);
     exit();
 }

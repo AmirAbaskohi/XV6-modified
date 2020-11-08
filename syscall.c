@@ -104,6 +104,10 @@ extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_reverse_number(void);
+extern int sys_trace_syscalls(void);
+extern int sys_get_children(void);
+extern int sys_get_grandchildren(void);
+extern int sys_getpid_parent(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -128,6 +132,10 @@ static int (*syscalls[])(void) = {
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
 [SYS_reverse_number] sys_reverse_number,
+[SYS_trace_syscalls] sys_trace_syscalls,
+[SYS_get_children] sys_get_children,
+[SYS_get_grandchildren] sys_get_grandchildren,
+[SYS_getpid_parent] sys_getpid_parent,
 };
 
 void
@@ -146,6 +154,7 @@ syscall(void)
 
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     curproc->tf->eax = syscalls[num]();
+    curproc->syscalls[num-1] += 1;
   } else {
     cprintf("%d %s: unknown sys call %d\n",
             curproc->pid, curproc->name, num);

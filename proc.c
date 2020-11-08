@@ -10,6 +10,7 @@
 struct {
   struct spinlock lock;
   struct proc proc[NPROC];
+  int state;
 } ptable;
 
 static struct proc *initproc;
@@ -19,6 +20,74 @@ extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
+
+void set_all_zero()
+{
+  for(int i=0;i<NPROC;i++)
+  {
+    for(int j=0;j<23;j++)
+    {
+      ptable.proc[i].syscalls[j] = 0;
+    }
+  }
+}
+
+char* syscall_names[23]={"fork","exit","wait","pipe","read","kill","exec","fstat","chdir","dup",
+"getpid","sbrk","sleep","uptime","open","write","mknode","unlink","link","mkdir","close","reverse_num","trace_syscalls"};
+
+void set_state(int _state){ ptable.state = _state;}
+
+void show_syscalls(void)
+{
+
+  if (ptable.state == 0){
+    set_all_zero();
+    return;
+  }
+  for(int i=0;i<NPROC;i++)
+  {
+    if(ptable.proc[i].pid == 0)
+      continue;
+    cprintf("%s: %d\n",ptable.proc[i].name);
+    for(int j=0;j<23;j++)
+    {
+      cprintf("%s: %d\n",syscall_names[j], ptable.proc[i].syscalls[j]);
+    }
+  }
+}
+
+void show_children(int parent_pid)
+{
+  int have_children = 0;
+
+  for(int i=0;i<NPROC;i++)
+  {
+    if(ptable.proc[i].parent->pid == parent_pid)
+    {
+      cprintf("%d",ptable.proc[i].pid);
+      have_children = 1;
+    }
+  }
+  if(have_children)
+    cprintf("\n");
+}
+
+void show_grandchildren(int parent_pid)
+{
+  int have_children = 0;
+
+  for(int i=0;i<NPROC;i++)
+  {
+    if(ptable.proc[i].parent->pid == parent_pid)
+    {
+      cprintf("%d",ptable.proc[i].pid);
+      show_grandchildren(ptable.proc[i].pid);
+      have_children = 1;
+    }
+  }
+  if(have_children)
+    cprintf("\n");
+}
 
 void
 pinit(void)

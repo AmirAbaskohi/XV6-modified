@@ -103,5 +103,47 @@ int sys_reverse_number(void)
     } 
     cprintf("Reverse number is : %d\n",reverse);
     return 1; 
+}
 
+int sys_trace_syscalls(void)
+{
+  int state;
+  struct proc *curproc = myproc();
+
+  if(argint(0, &state) < 0)
+    return -1;
+  if(curproc->pid == 2)
+  {
+    show_syscalls();
+  }
+  else
+  set_state(state);
+
+  return 1;
+}
+
+int sys_get_children(void)
+{
+  int parent_id;
+
+  if(argint(0, &parent_id) < 0)
+    return -1;
+  show_children(parent_id);
+  return 1;
+}
+
+int sys_get_grandchildren(void)
+{
+  int parent_id;
+
+  if(argint(0, &parent_id) < 0)
+    return -1;
+  show_grandchildren(parent_id);
+  return 1;
+}
+
+int
+sys_getpid_parent(void)
+{
+  return myproc()->parent->pid;
 }

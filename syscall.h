@@ -21,3 +21,7 @@
 #define SYS_mkdir  20
 #define SYS_close  21
 #define SYS_reverse_number 22
+#define SYS_trace_syscalls 23
+#define SYS_get_children 24
+#define SYS_get_grandchildren 25
+#define SYS_getpid_parent 26
