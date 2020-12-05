@@ -21,6 +21,9 @@ exec(char *path, char **argv)
 
   begin_op();
 
+  change_sched_queue(curproc->pid, LOTTERY);
+  set_ticket(curproc->tickets, 1000);
+
   if((ip = namei(path)) == 0){
     end_op();
     cprintf("exec: fail\n");

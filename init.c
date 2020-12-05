@@ -19,19 +19,19 @@ main(void)
   dup(0);  // stdout
   dup(0);  // stderr
 
-    pid = fork();
-    if(pid < 0){
-      printf(1, "trace_syscalls: fork failed\n");
-      exit();
+  pid = fork();
+  if(pid < 0){
+    printf(1, "trace_syscalls: fork failed\n");
+    exit();
+  }
+  if(pid == 0){
+    for(;;){
+    trace_syscalls(0);
+    sleep(505);
     }
-    if(pid == 0){
-      for(;;){
-      trace_syscalls(0);
-      sleep(505);
-      }
-      printf(1, "trace_syscalls: exec sh failed\n");
-      exit();
-    }
+    printf(1, "trace_syscalls: exec sh failed\n");
+    exit();
+  }
 
 
   for(;;){

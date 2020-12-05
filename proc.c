@@ -39,7 +39,6 @@ void set_state(int _state){ ptable.state = _state;}
 
 void show_syscalls(void)
 {
-
   if (ptable.state == 0){
     set_all_zero();
     return;
@@ -87,6 +86,63 @@ void show_grandchildren(int parent_pid)
   }
   if(have_children)
     cprintf("\n");
+}
+
+void change_sched_queue(int pid, int dst_queue)
+{
+  struct proc* p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if(p->pid == pid)
+    {
+      p->sched_queue = dst_queue;
+      break;
+    }
+  }
+}
+
+void set_ticket(int pid, int tickets)
+{
+  struct proc* p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if(p->pid == pid)
+    {
+      p->tickets = tickets;
+      break;
+    }
+  }
+}
+
+void set_ratio_process(int pid, int priority_ratio, int arrival_time_ratio, int executed_cycle_ratio)
+{
+  struct proc* p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if(p->pid == pid)
+    {
+      p->priority_ratio = priority_ratio;
+      p->arrival_time_ratio = arrival_time_ratio;
+      p->executed_cycle_ratio = executed_cycle_ratio;
+      // cprintf("the new ratios  %d \nthe new ratios  %d \nthe new ratios  %d \n",
+      //         p->priority_ratio,p->arrival_time_ratio,p->executed_cycle_ratio);
+      break;
+    }
+  }
+}
+
+void set_ratio_system(int priority_ratio, int arrival_time_ratio, int executed_cycle_ratio)
+{
+  struct proc* p;
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+  {
+    if(p->pid > 0)
+    {
+      p->priority_ratio = priority_ratio;
+      p->arrival_time_ratio = arrival_time_ratio;
+      p->executed_cycle_ratio = executed_cycle_ratio;
+    }
+  }
 }
 
 void
@@ -180,6 +236,11 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+
+  // this changes are for sched algorithms
+  p->tickets = 10;
+  p->sched_queue = LOTTERY;
+
 
   return p;
 }
@@ -380,6 +441,49 @@ wait(void)
   }
 }
 
+int 
+generate_random_ticket(int mod)
+{
+  int random_ticket;
+  random_ticket = (13780810*ticks + 13780825*ticks + 13790629*ticks) % mod;
+  return random_ticket;
+}
+
+struct proc* 
+lottery_scheduler(void)
+{
+  struct proc* p;
+  int sum_tickets = 1;
+  int random_ticket = 0;
+  struct proc* high_lottery_ticket = 0;
+
+  for(p = ptable.proc ; p < &ptable.proc[NPROC]; p++)
+  {
+    if(p->state != RUNNABLE || p->sched_queue != LOTTERY)
+        continue;
+    sum_tickets += p->tickets;
+  }
+
+  random_ticket = generate_random_ticket(sum_tickets);
+
+  for(p = ptable.proc ; p < &ptable.proc[NPROC]; p++)
+  {
+    if(p->state != RUNNABLE || p->sched_queue != LOTTERY)
+        continue;
+
+    random_ticket -= p->tickets;
+
+    high_lottery_ticket = p;
+
+    if (random_ticket <= 0)
+    {
+      return high_lottery_ticket;
+    }
+  }
+  
+  return 0;
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -420,7 +524,6 @@ scheduler(void)
       c->proc = 0;
     }
     release(&ptable.lock);
-
   }
 }
 
@@ -443,8 +546,11 @@ sched(void)
     panic("sched locks");
   if(p->state == RUNNING)
     panic("sched running");
+
   if(readeflags()&FL_IF)
     panic("sched interruptible");
+
+
   intena = mycpu()->intena;
   swtch(&p->context, mycpu()->scheduler);
   mycpu()->intena = intena;

@@ -27,6 +27,10 @@ int trace_syscalls(int);
 int get_children(int);
 int get_grandchildren(int);
 int getpid_parent(void);
+int change_queue(int, int);
+int set_ticket(int, int);
+int set_ratio_process(int, int, int, int);
+int set_ratio_system(int, int, int);
 
 // ulib.c
 int stat(const char*, struct stat*);

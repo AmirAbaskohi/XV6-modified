@@ -108,6 +108,10 @@ extern int sys_trace_syscalls(void);
 extern int sys_get_children(void);
 extern int sys_get_grandchildren(void);
 extern int sys_getpid_parent(void);
+extern int sys_change_queue(void);
+extern int sys_set_ticket(void);
+extern int sys_set_ratio_process(void);
+extern int sys_set_ratio_system(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -136,6 +140,10 @@ static int (*syscalls[])(void) = {
 [SYS_get_children] sys_get_children,
 [SYS_get_grandchildren] sys_get_grandchildren,
 [SYS_getpid_parent] sys_getpid_parent,
+[SYS_change_queue] sys_change_queue,
+[SYS_set_ticket] sys_set_ticket,
+[SYS_set_ratio_process] sys_set_ratio_process,
+[SYS_set_ratio_system] sys_set_ratio_system,
 };
 
 void

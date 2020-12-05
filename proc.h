@@ -6,7 +6,7 @@ struct cpu {
   struct segdesc gdt[NSEGS];   // x86 global descriptor table
   volatile uint started;       // Has the CPU started?
   int ncli;                    // Depth of pushcli nesting.
-  int intena;                  // Were interrupts enabled before pushcli?
+  int intena;                  // Were interrupts enabled before pushcli
   struct proc *proc;           // The process running on this cpu or null
 };
 
@@ -35,7 +35,14 @@ void show_syscalls(void);
 void set_state(int _state);
 void show_children(int parent_pid);
 void show_grandchildren(int parent_pid);
+void change_sched_queue(int pid, int dst_queue);
+void set_ticket(int pid, int tickets);
+void set_ratio_process(int pid, int priority_ratio, int arrival_time_ratio, int executed_cycle_ratio);
+void set_ratio_system(int priority_ratio, int arrival_time_ratio, int executed_cycle_ratio);
+
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -52,6 +59,16 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16]; 
   int syscalls[23] ;
+
+  int sched_queue;
+  int tickets;
+
+  long int arrival_time;
+  int executed_cycle;
+
+  int priority_ratio;
+  int arrival_time_ratio;
+  int executed_cycle_ratio;
 };
 
 // Process memory is laid out contiguously, low addresses first:
@@ -59,3 +76,4 @@ struct proc {
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+

@@ -41,10 +41,11 @@ void save(int result)
 
 int main(int argc, char *argv[])
 {
-    int res;
-    int number_of_arguments = argc > 9 ? 9 : argc;
+    // int res;
+    // int number_of_arguments = argc > 9 ? 9 : argc;
 
-    res = lcm(argv, number_of_arguments);
-    save(res);
+    // res = lcm(argv, number_of_arguments);
+    // save(res);
+    set_ratio_process(getpid(), 1 , 2 , 3);
     exit();
 }

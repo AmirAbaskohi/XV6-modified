@@ -25,3 +25,7 @@
 #define SYS_get_children 24
 #define SYS_get_grandchildren 25
 #define SYS_getpid_parent 26
+#define SYS_change_queue 27
+#define SYS_set_ticket 28
+#define SYS_set_ratio_process 29
+#define SYS_set_ratio_system 30

@@ -90,7 +90,8 @@ sys_uptime(void)
   return xticks;
 }
 
-int sys_reverse_number(void)
+int 
+sys_reverse_number(void)
 {
   struct proc *curproc = myproc();
   int number = curproc->tf->edx;
@@ -105,7 +106,8 @@ int sys_reverse_number(void)
     return 1; 
 }
 
-int sys_trace_syscalls(void)
+int 
+sys_trace_syscalls(void)
 {
   int state;
   struct proc *curproc = myproc();
@@ -122,7 +124,8 @@ int sys_trace_syscalls(void)
   return 1;
 }
 
-int sys_get_children(void)
+int 
+sys_get_children(void)
 {
   int parent_id;
 
@@ -132,7 +135,8 @@ int sys_get_children(void)
   return 1;
 }
 
-int sys_get_grandchildren(void)
+int 
+sys_get_grandchildren(void)
 {
   int parent_id;
 
@@ -146,4 +150,80 @@ int
 sys_getpid_parent(void)
 {
   return myproc()->parent->pid;
+}
+
+int 
+sys_change_queue(void)
+{
+  int pid;
+  int dst_queue;
+
+  if(argint(0, &pid) < 0)
+    return -1;
+
+  if(argint(1, &dst_queue) < 0)
+    return -1;
+  
+  change_sched_queue(pid, dst_queue);
+  return 1;
+}
+
+int 
+sys_set_ticket(void)
+{
+  int pid;
+  int tickets;
+
+  if(argint(0, &pid) < 0)
+    return -1;
+
+  if(argint(1, &tickets) < 0)
+    return -1;
+  
+  set_ticket(pid, tickets);
+  return 1;
+}
+
+int 
+sys_set_ratio_process(void)
+{
+  int pid;
+  int priority_ratio;
+  int arrival_time_ratio;
+  int executed_cycle_ratio;
+
+  if(argint(0, &pid) < 0)
+    return -1;
+
+  if(argint(1, &priority_ratio) < 0)
+    return -1;
+
+  if(argint(2, &arrival_time_ratio) < 0)
+    return -1;
+
+  if(argint(3, &executed_cycle_ratio) < 0)
+    return -1;
+  
+  set_ratio_process(pid, priority_ratio, arrival_time_ratio, executed_cycle_ratio);
+  return 1;
+}
+
+int 
+sys_set_ratio_system(void)
+{
+  int priority_ratio;
+  int arrival_time_ratio;
+  int executed_cycle_ratio;
+
+  if(argint(0, &priority_ratio) < 0)
+    return -1;
+
+  if(argint(1, &arrival_time_ratio) < 0)
+    return -1;
+
+  if(argint(2, &executed_cycle_ratio) < 0)
+    return -1;
+  
+  set_ratio_system(priority_ratio, arrival_time_ratio, executed_cycle_ratio);
+  return 1;
 }
