@@ -187,6 +187,12 @@ UPROGS=\
 	_tracesys\
 	_getchildren\
 	_getgrandchildren\
+	_foo\
+	_change_queue\
+	_set_ticket\
+	_set_ratio_process\
+	_set_ratio_system\
+	_print_details\
 
 
 fs.img: mkfs README $(UPROGS)
@@ -259,6 +265,12 @@ EXTRA=\
 	ln.c ls.c mkdir.c rm.c stressfs.c usertests.c wc.c zombie.c\
 	clear.c\
 	lcm.c\
+	foo.c\
+	change_queue.c\
+	set_ticket.c\
+	set_ratio_process.c\
+	set_ratio_system.c\
+	print_details.c\
 	revnum.c\
 	tracesys.c\
 	getchildren.c\

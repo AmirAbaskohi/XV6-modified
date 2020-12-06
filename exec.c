@@ -20,9 +20,8 @@ exec(char *path, char **argv)
   struct proc *curproc = myproc();
 
   begin_op();
-
   change_sched_queue(curproc->pid, LOTTERY);
-  set_ticket(curproc->tickets, 1000);
+  set_ticket(curproc->pid, 1000);
 
   if((ip = namei(path)) == 0){
     end_op();

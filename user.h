@@ -31,6 +31,7 @@ int change_queue(int, int);
 int set_ticket(int, int);
 int set_ratio_process(int, int, int, int);
 int set_ratio_system(int, int, int);
+int print_processes_datails();
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -45,3 +46,4 @@ void* memset(void*, int, uint);
 void* malloc(uint);
 void free(void*);
 int atoi(const char*);
+void delay(int number_of_clocks);

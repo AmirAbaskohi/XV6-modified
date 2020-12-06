@@ -39,6 +39,7 @@ void change_sched_queue(int pid, int dst_queue);
 void set_ticket(int pid, int tickets);
 void set_ratio_process(int pid, int priority_ratio, int arrival_time_ratio, int executed_cycle_ratio);
 void set_ratio_system(int priority_ratio, int arrival_time_ratio, int executed_cycle_ratio);
+void print_processes_datails(void);
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
@@ -65,6 +66,7 @@ struct proc {
 
   long int arrival_time;
   int executed_cycle;
+  long int waiting_time;
 
   int priority_ratio;
   int arrival_time_ratio;

@@ -145,6 +145,113 @@ void set_ratio_system(int priority_ratio, int arrival_time_ratio, int executed_c
   }
 }
 
+char* get_state(int state){
+  if(state == 0){
+    return "UNUSED";
+  }else if(state == 1){
+    return "EMBRYO";
+  }else if(state == 2){
+    return "SLEEPING";
+  }else if(state == 3){
+    return "RUNNABLE";
+  }else if(state == 4){
+    return "RUNNING";
+  }else if(state == 5){
+    return "ZOMBIE";
+  }else{
+    return "";
+  }
+}
+
+char* get_Q_name(int Q){
+  if(Q == ROUND_ROBIN){
+    return "ROUND_ROBIN";
+  }else if(Q == LOTTERY){
+    return "LOTTERY";
+  }else if(Q == BJF){
+    return "BJF";
+  }else{
+    return "";
+  }
+}
+
+void itos(int in, char* res, int* index)
+{
+  if(in == 0) return;
+  int digit = in%10;
+  in /= 10;
+  itos(in, res, index);
+  res[(*index)++] = digit + '0';
+}
+
+char* double_to_string(double in, char* res, int afterPoint)
+{
+  int index = 0;
+  int int_part;
+  double double_part;
+  int_part = (int)in;
+  double_part = (double) in - int_part;
+  if (int_part == 0) res[index++] = '0';
+  itos(int_part, res, &index);
+  res[index++] = '.';
+  for (int j = 0; j < afterPoint; j++)
+  {
+    double_part *= 10;
+    if (double_part == 0) res[index++] = '0';
+  }
+  int_part = (int)double_part;
+  itos(int_part, res, &index);
+  res[index] = '\0';
+  return res;
+}
+
+int nod(int in)
+{
+  if (in == 0) return 1;
+  int ans = 0;
+  while (in > 0)
+  {
+    in /= 10;
+    ans++;
+  }
+  return ans;
+}
+
+void print_processes_datails(void)
+{
+  struct proc *p;
+  double rank;
+  char buf[16];
+
+  cprintf("name                pid   state       Qnum           tickets   ratios           rank          exeCycle    waiting_time\n");
+  cprintf("-----------------------------------------------------------------------------------------------------------------------\n");
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+
+    if(p->pid == 0)
+      continue;
+    
+    cprintf("%s", p->name);
+    for (int i = 0; i < 20 - strlen(p->name); i++) cprintf(" ");
+    cprintf("%d", p->pid);
+    for (int i = 0; i < 6 - nod(p->pid); i++) cprintf(" ");
+    cprintf("%s", get_state(p->state));
+    for (int i = 0; i < 12 - strlen(get_state(p->state)); i++) cprintf(" ");
+    cprintf("%s", get_Q_name(p->sched_queue));
+    for (int i = 0; i < 15 - strlen(get_Q_name(p->sched_queue)); i++) cprintf(" ");
+    cprintf("%d", p->tickets);
+    for (int i = 0; i < 10 - nod(p->tickets); i++) cprintf(" ");
+    cprintf("%d, %d, %d", p->priority_ratio, p->arrival_time_ratio, p->executed_cycle_ratio);
+    for (int i = 0; i < 13-nod(p->priority_ratio)-nod(p->arrival_time_ratio)-nod(p->executed_cycle_ratio); i++) cprintf(" ");
+    rank = ((1.0/p->tickets)*p->priority_ratio)+(p->arrival_time*p->arrival_time_ratio)+(p->executed_cycle*0.1*p->executed_cycle_ratio);
+    cprintf("%s",double_to_string(rank, buf, 3));
+    for (int i = 0; i < 14 - strlen(buf); i++) cprintf(" ");
+    cprintf("%d", p->executed_cycle);
+    for (int i = 0; i < 12 - nod(p->executed_cycle); i++) cprintf(" ");
+    cprintf("%d\n", p->waiting_time);
+  }
+}
+
 void
 pinit(void)
 {
@@ -240,7 +347,10 @@ found:
   // this changes are for sched algorithms
   p->tickets = 10;
   p->sched_queue = LOTTERY;
-
+  p->arrival_time_ratio = 1;
+  p->priority_ratio = 1;
+  p->executed_cycle_ratio = 1;
+  p->arrival_time = ticks;
 
   return p;
 }
@@ -484,6 +594,61 @@ lottery_scheduler(void)
   return 0;
 }
 
+struct proc* 
+bjf_scheduler(void)
+{
+  struct proc* p;
+  double min_rank, cur_rank;
+  int min_is_set = 0;
+  struct proc* min_rank_process = 0;
+
+  for(p = ptable.proc ; p < &ptable.proc[NPROC]; p++)
+  {
+    if(p->state != RUNNABLE || p->sched_queue != BJF)
+        continue;
+    if (min_is_set == 1)
+    {
+      cur_rank = ((1.0/p->tickets)*p->priority_ratio)+(p->arrival_time*p->arrival_time_ratio)+(p->executed_cycle*0.1*p->executed_cycle_ratio);
+      if (cur_rank < min_rank)
+      {
+        min_rank = cur_rank;
+        min_rank_process = p;
+      }
+    }
+    else
+    {
+      min_rank_process = p;
+      min_rank = ((1.0/p->tickets)*p->priority_ratio)+(p->arrival_time*p->arrival_time_ratio)+(p->executed_cycle*0.1*p->executed_cycle_ratio);
+      min_is_set = 1;
+    }
+  }
+  if (min_is_set == 0)
+    return 0;
+  return min_rank_process;
+}
+
+struct proc* 
+round_robin_scheduler(int* index)
+{
+  struct proc *p;
+  int selected_index = -1;
+  int cur_index;
+  for (int i = 0; i < NPROC; i++)
+  {
+    cur_index = (i + (*index)) %  NPROC;
+    if(ptable.proc[cur_index].state != RUNNABLE || ptable.proc[cur_index].sched_queue != ROUND_ROBIN)
+      continue;
+
+    p = &ptable.proc[cur_index];
+    selected_index = cur_index;
+    *index = (cur_index + 1) % NPROC;
+    break;
+  }
+  if (selected_index == -1)
+    return 0;
+  return p;
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -496,33 +661,69 @@ void
 scheduler(void)
 {
   struct proc *p;
+  struct proc *ap;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+  int RR_index = 0;
+
   for(;;){
     // Enable interrupts on this processor.
     sti();
 
     // Loop over process table looking for process to run.
-    acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
+    acquire(&ptable.lock);
+
+    p = round_robin_scheduler(&RR_index);
+
+    if (p == 0)
+    {
+      RR_index = 0;
+      p = lottery_scheduler();
+    }
+
+    if (p == 0)
+    {
+      p = bjf_scheduler();
+    }
+
+    if(p != 0)
+    {
+      p->executed_cycle++;
+
+      for(ap = ptable.proc ; ap < &ptable.proc[NPROC]; ap++)
+      {
+        if(ap->pid == 0)
+          continue;
+
+        if(ap->state == RUNNABLE)
+        {
+          ap->waiting_time++;
+        }
+
+        if (ap->waiting_time > 10000)
+        {
+          if (ap->sched_queue > 1) 
+          {
+            ap->sched_queue--;
+            ap->waiting_time = 0;
+          }
+        }
+      }
+
+      p->waiting_time = 0;
+
       c->proc = p;
+
       switchuvm(p);
       p->state = RUNNING;
 
       swtch(&(c->scheduler), p->context);
       switchkvm();
 
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
       c->proc = 0;
     }
+
     release(&ptable.lock);
   }
 }

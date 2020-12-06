@@ -29,3 +29,4 @@
 #define SYS_set_ticket 28
 #define SYS_set_ratio_process 29
 #define SYS_set_ratio_system 30
+#define SYS_print_processes_datails 31

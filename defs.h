@@ -191,4 +191,4 @@ void            clearpteu(pde_t *pgdir, char *uva);
 
 #define ROUND_ROBIN 1
 #define LOTTERY 2
-#define SJF 3
+#define BJF 3

@@ -104,3 +104,14 @@ memmove(void *vdst, const void *vsrc, int n)
     *dst++ = *src++;
   return vdst;
 }
+
+void 
+delay(int number_of_clocks)
+{
+    int first_clock = uptime();
+    int inc_clock = uptime();
+    while(inc_clock >= (first_clock + number_of_clocks) )
+    {
+        inc_clock = uptime();
+    }
+}

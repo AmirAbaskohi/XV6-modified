@@ -112,6 +112,7 @@ extern int sys_change_queue(void);
 extern int sys_set_ticket(void);
 extern int sys_set_ratio_process(void);
 extern int sys_set_ratio_system(void);
+extern int sys_print_processes_datails(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -144,6 +145,7 @@ static int (*syscalls[])(void) = {
 [SYS_set_ticket] sys_set_ticket,
 [SYS_set_ratio_process] sys_set_ratio_process,
 [SYS_set_ratio_system] sys_set_ratio_system,
+[SYS_print_processes_datails] sys_print_processes_datails,
 };
 
 void

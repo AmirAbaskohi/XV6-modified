@@ -227,3 +227,10 @@ sys_set_ratio_system(void)
   set_ratio_system(priority_ratio, arrival_time_ratio, executed_cycle_ratio);
   return 1;
 }
+
+int 
+sys_print_processes_datails(void)
+{
+  print_processes_datails();
+  return 1;
+}
