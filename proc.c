@@ -47,11 +47,12 @@ void show_syscalls(void)
   {
     if(ptable.proc[i].pid == 0)
       continue;
-    cprintf("%s: %d\n",ptable.proc[i].name);
+    cprintf("%s\n",ptable.proc[i].name);
     for(int j=0;j<23;j++)
     {
       cprintf("%s: %d\n",syscall_names[j], ptable.proc[i].syscalls[j]);
     }
+    cprintf("-----------------------------------------\n");
   }
 }
 
