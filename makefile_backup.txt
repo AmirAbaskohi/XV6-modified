@@ -195,7 +195,7 @@ UPROGS=\
 	_print_details\
 	_test_semaphore\
 	_test_convar\
-	_test\
+	_test_rwp\
 
 
 fs.img: mkfs README $(UPROGS)
@@ -276,7 +276,7 @@ EXTRA=\
 	print_details.c\
 	test_semaphore.c\
 	test_convar.c\
-	test.c\
+	test_rwp.c\
 	revnum.c\
 	tracesys.c\
 	getchildren.c\

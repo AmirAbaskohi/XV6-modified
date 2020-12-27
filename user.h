@@ -7,6 +7,7 @@ struct spinlock1 {
 
 struct condvar
 {
+    int active;
     struct spinlock1 lock;
 };
 
@@ -48,6 +49,10 @@ int semaphore_aquire(int);
 
 int cv_wait(struct condvar*);
 int cv_signal(struct condvar*);
+
+int reader(int);
+int writer(int);
+int init_rwp(void);
 
 
 

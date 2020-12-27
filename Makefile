@@ -181,13 +181,9 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
-	_clear\
-	_lcm\
-	_revnum\
 	_tracesys\
 	_getchildren\
 	_getgrandchildren\
-	_foo\
 	_change_queue\
 	_set_ticket\
 	_set_ratio_process\
@@ -195,7 +191,7 @@ UPROGS=\
 	_print_details\
 	_test_semaphore\
 	_test_convar\
-	_test\
+	_test_rwp\
 
 
 fs.img: mkfs README $(UPROGS)
@@ -276,7 +272,7 @@ EXTRA=\
 	print_details.c\
 	test_semaphore.c\
 	test_convar.c\
-	test.c\
+	test_rwp.c\
 	revnum.c\
 	tracesys.c\
 	getchildren.c\

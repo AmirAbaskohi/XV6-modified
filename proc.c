@@ -317,16 +317,90 @@ void unlock(struct spinlock1 *lk)
 
 void cv_wait(struct condvar* cv)
 {
-  lock(&(cv->lock));
+  cv->active = 1;
   sleep1(cv);
-  unlock(&(cv->lock));
+
 }
 
 void cv_signal(struct condvar* cv)
 {
-  lock(&(cv->lock));
+  cv->active = 0;
   wakeup(cv);
-  unlock(&(cv->lock));
+}
+
+int rc = 0;
+struct condvar* wrt;
+struct condvar* mutex;
+
+void init_rwp()
+{
+  init_lock(&(wrt->lock));
+  init_lock(&(mutex->lock));
+}
+
+void reader(int id)
+{
+  cprintf("reader %d start\n", id);
+  if (mutex->lock.locked == 1)
+  {
+    cv_wait(mutex);
+  }
+  lock(&(mutex->lock));
+
+  rc ++;
+  if (rc == 1)
+  {
+    cprintf("reader %d start before wrtlock \n", id);
+    cprintf("wrtlock is : %d\n", wrt->lock.locked);
+    if (wrt->lock.locked == 1)
+    {
+      cv_wait(wrt);
+    }
+    lock(&(wrt->lock));
+    cprintf("reader %d start after wrtlock \n", id);
+  }
+
+  unlock(&(mutex->lock));
+  cv_signal(mutex);
+
+  cprintf("num of readers = %d\n", rc);
+  cprintf("reader %d is reading \n", id);
+
+  if (mutex->lock.locked == 1)
+  {
+    cv_wait(mutex);
+  }
+
+  lock(&(mutex->lock));
+
+  rc --;
+  if (rc == 0)
+  {
+    if (wrt->lock.locked == 1)
+    {
+      cv_wait(wrt);
+    }
+    unlock(&(wrt->lock));
+  }
+
+  unlock(&(mutex->lock));
+  cv_signal(mutex);
+
+  cprintf("reader %d finish \n", id);
+
+}
+
+void writer(int id)
+{
+  if (wrt->lock.locked == 1)
+  {
+    cv_wait(wrt);
+  }
+  lock(&(wrt->lock));
+    cprintf("writer %d is writing \n", id);
+  unlock(&(wrt->lock));
+  cv_signal(wrt);
+    cprintf("writer %d finish \n", id);
 }
 
 

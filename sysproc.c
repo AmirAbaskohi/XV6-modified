@@ -303,3 +303,35 @@ sys_cv_signal(void)
   cv_signal(cv);
   return 1;
 }
+
+
+int
+sys_reader(void)
+{
+  int id;
+
+  if(argint(0, &id) < 0)
+    return -1;
+
+  reader(id);
+  return 1;
+}
+
+int
+sys_writer(void)
+{
+  int id;
+
+  if(argint(0, &id) < 0)
+    return -1;
+
+  writer(id);
+  return 1;
+}
+
+int
+sys_init_rwp(void)
+{
+  init_rwp();
+  return 1;
+}

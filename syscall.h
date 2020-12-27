@@ -35,3 +35,6 @@
 #define SYS_semaphore_release 34
 #define SYS_cv_wait 35
 #define SYS_cv_signal 36
+#define SYS_reader 37
+#define SYS_writer 38
+#define SYS_init_rwp 39

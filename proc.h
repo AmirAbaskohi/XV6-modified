@@ -20,6 +20,7 @@ struct spinlock1 {
 
 struct condvar
 {
+    int active;
     struct spinlock1 lock;
 };
 
@@ -56,6 +57,10 @@ void sem_signal(int sem);
 
 void cv_wait(struct condvar* cv);
 void cv_signal(struct condvar* cv);
+
+void writer(int id);
+void reader(int id);
+void init_rwp();
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
