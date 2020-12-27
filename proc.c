@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+// #include "user.h"
 
 struct {
   struct spinlock lock;
@@ -13,13 +14,25 @@ struct {
   int state;
 } ptable;
 
+struct semaphore {
+  int size;
+  int processes_inside;
+  struct spinlock lock;
+};
+
+struct semaphore sema[NUM_OF_SEMAPHORES];
+
 static struct proc *initproc;
+
+char* syscall_names[23]={"fork","exit","wait","pipe","read","kill","exec","fstat","chdir","dup",
+"getpid","sbrk","sleep","uptime","open","write","mknode","unlink","link","mkdir","close","reverse_num","trace_syscalls"};
 
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
 
 static void wakeup1(void *chan);
+void sleep1(void *chan);
 
 void set_all_zero()
 {
@@ -31,9 +44,6 @@ void set_all_zero()
     }
   }
 }
-
-char* syscall_names[23]={"fork","exit","wait","pipe","read","kill","exec","fstat","chdir","dup",
-"getpid","sbrk","sleep","uptime","open","write","mknode","unlink","link","mkdir","close","reverse_num","trace_syscalls"};
 
 void set_state(int _state){ ptable.state = _state;}
 
@@ -52,6 +62,7 @@ void show_syscalls(void)
     {
       cprintf("%s: %d\n",syscall_names[j], ptable.proc[i].syscalls[j]);
     }
+    cprintf("\n\n");
   }
 }
 
@@ -251,6 +262,72 @@ void print_processes_datails(void)
     cprintf("%d\n", p->waiting_time);
   }
 }
+
+
+void sem_init(int sem, int size, int processes_inside)
+{
+  acquire(&sema[sem].lock);
+  sema[sem].size = size;
+  sema[sem].processes_inside = processes_inside;
+
+  release(&sema[sem].lock);
+}
+
+void sem_wait(int sem)
+{
+  acquire(&sema[sem].lock);
+
+  while (sema[sem].size <= sema[sem].processes_inside)
+  {  
+    sleep(&sema[sem],&sema[sem].lock);
+  }
+  sema[sem].processes_inside += 1;
+
+  release(&sema[sem].lock);
+}
+
+void sem_signal(int sem)
+{
+  acquire(&sema[sem].lock);
+
+  sema[sem].processes_inside -= 1;
+  wakeup(&sema[sem]); 
+  release(&sema[sem].lock);
+}
+
+//*****adding spinlock
+
+void init_lock(struct spinlock1 *lk)
+{
+  lk->locked = 0;
+}
+
+void lock(struct spinlock1 *lk)
+{
+  while(xchg(&lk->locked, 1) != 0)
+    ;
+}
+
+void unlock(struct spinlock1 *lk)
+{
+  asm volatile("movl $0, %0" : "+m" (lk->locked) : );
+}
+//***** end of spinlock
+
+void cv_wait(struct condvar* cv)
+{
+  lock(&(cv->lock));
+  sleep1(cv);
+  unlock(&(cv->lock));
+}
+
+void cv_signal(struct condvar* cv)
+{
+  lock(&(cv->lock));
+  wakeup(cv);
+  unlock(&(cv->lock));
+}
+
 
 void
 pinit(void)
@@ -787,6 +864,27 @@ forkret(void)
 
   // Return to "caller", actually trapret (see allocproc).
 }
+
+void
+sleep1(void *chan)
+{
+  struct proc *p = myproc();
+
+  if(p == 0)
+    panic("sleep");
+  
+  acquire(&ptable.lock);
+
+  p->chan = chan;
+  p->state = SLEEPING;
+
+  sched();
+
+  p->chan = 0;
+
+  release(&ptable.lock);
+}
+
 
 // Atomically release lock and sleep on chan.
 // Reacquires lock when awakened.

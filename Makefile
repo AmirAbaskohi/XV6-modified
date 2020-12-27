@@ -193,6 +193,9 @@ UPROGS=\
 	_set_ratio_process\
 	_set_ratio_system\
 	_print_details\
+	_test_semaphore\
+	_test_convar\
+	_test\
 
 
 fs.img: mkfs README $(UPROGS)
@@ -271,6 +274,9 @@ EXTRA=\
 	set_ratio_process.c\
 	set_ratio_system.c\
 	print_details.c\
+	test_semaphore.c\
+	test_convar.c\
+	test.c\
 	revnum.c\
 	tracesys.c\
 	getchildren.c\

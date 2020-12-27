@@ -113,6 +113,11 @@ extern int sys_set_ticket(void);
 extern int sys_set_ratio_process(void);
 extern int sys_set_ratio_system(void);
 extern int sys_print_processes_datails(void);
+extern int sys_semaphore_initialize(void);
+extern int sys_semaphore_aquire(void);
+extern int sys_semaphore_release(void);
+extern int sys_cv_wait(void);
+extern int sys_cv_signal(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -146,6 +151,11 @@ static int (*syscalls[])(void) = {
 [SYS_set_ratio_process] sys_set_ratio_process,
 [SYS_set_ratio_system] sys_set_ratio_system,
 [SYS_print_processes_datails] sys_print_processes_datails,
+[SYS_semaphore_initialize] sys_semaphore_initialize,
+[SYS_semaphore_aquire] sys_semaphore_aquire,
+[SYS_semaphore_release] sys_semaphore_release,
+[SYS_cv_wait] sys_cv_wait,
+[SYS_cv_signal] sys_cv_signal,
 };
 
 void

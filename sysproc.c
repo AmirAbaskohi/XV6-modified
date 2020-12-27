@@ -234,3 +234,72 @@ sys_print_processes_datails(void)
   print_processes_datails();
   return 1;
 }
+
+int
+sys_semaphore_initialize(void)
+{
+  int index;
+  int size;
+  int init_processes;
+
+  if(argint(0, &index) < 0)
+    return -1;
+
+  if(argint(1, &size) < 0)
+    return -1;
+
+  if(argint(2, &init_processes) < 0)
+    return -1;
+  
+  sem_init(index, size, init_processes);
+  return 1;
+}
+
+int
+sys_semaphore_aquire(void)
+{
+  int index;
+  
+
+  if(argint(0, &index) < 0)
+    return -1;
+  
+  sem_wait(index);
+  return 1;
+}
+
+int
+sys_semaphore_release(void)
+{
+  int index;
+
+  if(argint(0, &index) < 0)
+    return -1;
+  
+  sem_signal(index);
+  return 1;
+}
+
+int
+sys_cv_wait(void)
+{
+  struct condvar* cv;
+
+  if(argptr(0, (void*)&cv, sizeof(*cv)) < 0)
+    return -1;
+  
+  cv_wait(cv);
+  return 1;
+}
+
+int
+sys_cv_signal(void)
+{
+  struct condvar* cv;
+
+  if(argptr(0, (void*)&cv, sizeof(*cv)) < 0)
+    return -1;
+  
+  cv_signal(cv);
+  return 1;
+}

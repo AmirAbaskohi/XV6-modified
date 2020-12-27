@@ -30,3 +30,8 @@
 #define SYS_set_ratio_process 29
 #define SYS_set_ratio_system 30
 #define SYS_print_processes_datails 31
+#define SYS_semaphore_initialize 32
+#define SYS_semaphore_aquire 33
+#define SYS_semaphore_release 34
+#define SYS_cv_wait 35
+#define SYS_cv_signal 36

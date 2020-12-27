@@ -1,6 +1,16 @@
 struct stat;
 struct rtcdate;
 
+struct spinlock1 {
+  uint locked;
+};
+
+struct condvar
+{
+    struct spinlock1 lock;
+};
+
+
 // system calls
 int fork(void);
 int exit(void) __attribute__((noreturn));
@@ -32,6 +42,14 @@ int set_ticket(int, int);
 int set_ratio_process(int, int, int, int);
 int set_ratio_system(int, int, int);
 int print_processes_datails();
+int semaphore_initialize(int, int, int);
+int semaphore_release(int);
+int semaphore_aquire(int);
+
+int cv_wait(struct condvar*);
+int cv_signal(struct condvar*);
+
+
 
 // ulib.c
 int stat(const char*, struct stat*);
@@ -47,3 +65,7 @@ void* malloc(uint);
 void free(void*);
 int atoi(const char*);
 void delay(int number_of_clocks);
+
+void init_lock(struct spinlock1 *lk);
+void lock(struct spinlock1 *lk);
+void unlock(struct spinlock1 *lk);

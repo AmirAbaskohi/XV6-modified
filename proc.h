@@ -13,6 +13,16 @@ struct cpu {
 extern struct cpu cpus[NCPU];
 extern int ncpu;
 
+
+struct spinlock1 {
+  uint locked;
+};
+
+struct condvar
+{
+    struct spinlock1 lock;
+};
+
 //PAGEBREAK: 17
 // Saved registers for kernel context switches.
 // Don't need to save all the segment registers (%cs, etc),
@@ -40,6 +50,12 @@ void set_ticket(int pid, int tickets);
 void set_ratio_process(int pid, int priority_ratio, int arrival_time_ratio, int executed_cycle_ratio);
 void set_ratio_system(int priority_ratio, int arrival_time_ratio, int executed_cycle_ratio);
 void print_processes_datails(void);
+void sem_init(int sem, int size, int processes_inside);
+void sem_wait(int sem);
+void sem_signal(int sem);
+
+void cv_wait(struct condvar* cv);
+void cv_signal(struct condvar* cv);
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
